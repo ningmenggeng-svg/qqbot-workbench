@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>群聊实验室 · QQBot Workbench</title>
+  <meta name="description" content="登录独立 QQ 机器人账号、连接 ChatGPT、填写群号，自动准备本机群聊助手。">
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body><div class="shell">
+<aside class="sidebar">
+  <a class="brand" href="/"><span class="brand-icon">q<span>✦</span></span><span>群聊实验室<small>QQ BOT WORKBENCH</small></span></a>
+  <div class="nav-label">工作空间</div>
+  <a class="nav-item active" href="#overview"><span>◫</span>连接总览<span class="nav-dot"></span></a>
+  <a class="nav-item" href="#qq"><span>◎</span>机器人账号</a>
+  <a class="nav-item" href="#account"><span>✧</span>ChatGPT 账号</a>
+  <a class="nav-item" href="#group"><span>☷</span>目标 QQ 群</a>
+  <a class="nav-item" href="#logs"><span>≡</span>运行记录</a>
+  <div class="side-bottom"><span class="live-dot"></span><span>本机运行<small>0.1.0 · 数据保存在此电脑</small></span></div>
+</aside>
+<main id="overview">
+  <header class="topbar"><div class="crumb">工作空间<span>/</span><strong>连接总览</strong></div><span class="local-tag"><span class="live-dot"></span>LOCAL</span></header>
+  <section class="page-title"><div><div class="eyebrow">YOUR NEXT GROUP MEMBER</div><h1>让 GPT 加入你的群聊<span>。</span></h1><p>登录小号，连接 ChatGPT，再告诉它去哪个群。</p></div><button id="refresh" class="icon-button" aria-label="刷新状态">↻</button></section>
+  <section class="connection-map" aria-label="连接流程">
+    <div class="map-heading"><span>消息的旅程</span><span id="journey-label" class="muted">正在检查本机服务</span></div>
+    <div class="nodes">
+      <div class="node"><div class="node-icon qq-icon">Q</div><strong>QQ 群</strong><small id="map-group">尚未设置</small><span id="node-qq" class="node-status">待连接</span></div><div class="connector"><span>→</span></div>
+      <div class="node"><div class="node-icon cat-icon">⌁</div><strong>QQ 小号</strong><small id="map-bot">独立机器人账号</small><span id="node-napcat" class="node-status">待登录</span></div><div class="connector"><span>→</span></div>
+      <div class="node"><div class="node-icon astr-icon">✧</div><strong>AstrBot</strong><small>聊天助手</small><span id="node-astrbot" class="node-status">准备中</span></div><div class="connector"><span>→</span></div>
+      <div class="node"><div class="node-icon gpt-icon">✳</div><strong>ChatGPT</strong><small>CPA 模型接口</small><span id="node-cpa" class="node-status">待登录</span></div>
+    </div>
+  </section>
+  <div id="setup-banner" class="setup-banner"><span class="spinner"></span><div><strong id="setup-title">正在自动准备运行环境</strong><p id="setup-description">首次使用需要联网下载组件和依赖。</p></div><button id="retry-setup" class="text-button" hidden>重试安装</button><span id="setup-badge">准备中</span></div>
+  <div class="work-grid"><div class="steps">
+    <section class="card step-card" id="qq">
+      <div class="card-top"><span class="step-number">01</span><span id="qq-badge" class="badge">待登录</span></div>
+      <h2>先登录你的 QQ 小号</h2><p class="card-description">使用单独准备的机器人账号。密码只用于当次登录，也可以选择扫码。</p>
+      <label for="bot-qq">机器人 QQ 号</label><input id="bot-qq" inputmode="numeric" autocomplete="off" placeholder="输入独立 QQ 小号">
+      <label for="bot-password" class="spaced-label">QQ 小号密码 <span>扫码登录可留空</span></label><input id="bot-password" type="password" autocomplete="off" placeholder="仅用于当次登录，不保存">
+      <label class="checkbox-row"><input id="dedicated" type="checkbox"><span>这是独立机器人号，并在专用 Windows 用户或电脑运行。</span></label>
+      <p class="field-hint">NapCat 可能共用同一 Windows 用户下的 QQ 数据目录。检测到当前会话已有 QQ 运行时，程序会停止接入，不会退出或重启已有 QQ。</p>
+      <div class="actions"><button id="qq-password-login" class="button primary">账号密码登录 <span>→</span></button><button id="qq-qr-login" class="button secondary">扫码登录</button><button id="qq-stop" class="text-button" hidden>停止机器人</button></div>
+      <div id="qq-message" class="login-message" aria-live="polite"></div>
+      <div id="qr-box" class="qr-box" hidden><img id="qq-qr-image" alt="机器人 QQ 登录二维码" hidden><p id="qr-hint">正在生成二维码…</p><button id="refresh-qr" class="text-button">刷新二维码</button></div>
+      <a id="qq-native" class="text-button" target="_blank" rel="noopener noreferrer" hidden>在 QQ 组件面板完成安全验证 ↗</a>
+    </section>
+    <section class="card step-card" id="account">
+      <div class="card-top"><span class="step-number">02</span><span id="account-badge" class="badge">待授权</span></div>
+      <h2>连接你的 ChatGPT</h2><p class="card-description">在 OpenAI 官方页面登录授权。连接后自动选择并测试一个可用模型。</p>
+      <div id="auth-success" class="success-box" hidden>✓ ChatGPT 账号已连接</div>
+      <div class="actions"><button id="login" class="button primary">登录 ChatGPT <span>↗</span></button><a id="auth-link" class="button secondary" target="_blank" rel="noopener noreferrer" hidden>打开授权页面 ↗</a></div>
+      <p id="auth-hint" class="field-hint">使用该账号可用的 Codex 套餐额度，具体限额由上游决定。</p>
+      <div id="test-result" class="test-result" hidden aria-live="polite"></div>
+      <details class="advanced" id="model-options"><summary>高级配置：模型和网络</summary>
+        <label for="model">聊天模型</label><div class="input-action"><select id="model" disabled><option value="">登录后自动获取</option></select><button id="load-models" class="button secondary" disabled>刷新</button></div>
+        <div class="actions"><button id="save-model" class="button secondary" disabled>保存模型</button><button id="test-model" class="button secondary" disabled>重新测试</button></div>
+        <label for="proxy" class="spaced-label">本机代理地址 <span>选填</span></label><div class="input-action"><input id="proxy" type="url" autocomplete="off" placeholder="例如 http://127.0.0.1:7890"><button id="save-proxy" class="button secondary">保存</button></div>
+      </details>
+    </section>
+    <section class="card step-card" id="group">
+      <div class="card-top"><span class="step-number">03</span><span id="group-badge" class="badge">待设置</span></div>
+      <h2>告诉机器人去哪个群</h2><p class="card-description">先把机器人小号加入目标群。启用后，它会在这个群被 @ 时回复。</p>
+      <label for="groups">目标 QQ 群号</label><input id="groups" inputmode="numeric" autocomplete="off" placeholder="输入群号；多个群号用逗号分隔">
+      <div class="actions"><button id="activate" class="button primary">启用群聊 <span>→</span></button><button id="save-groups" class="button secondary">仅保存群号</button></div>
+      <div id="group-success" class="success-box" hidden>✓ 连接已配置，请在目标群里 @机器人 你好。</div>
+    </section>
+  </div><aside class="right-column">
+    <section class="card services"><div class="section-label">本机服务<span id="service-count">—</span></div>
+      <div class="service-row"><div><strong>CPA</strong><small id="cpa-port">模型接口</small></div><span id="cpa-dot" class="service-dot"></span><button id="toggle-cpa" class="text-button">启动</button></div>
+      <div class="service-row"><div><strong>AstrBot</strong><small id="astrbot-port">聊天助手</small></div><span id="astrbot-dot" class="service-dot"></span><button id="toggle-astrbot" class="text-button">启动</button></div>
+      <div class="service-row"><div><strong>NapCat</strong><small id="napcat-port">QQ 小号连接</small></div><span id="napcat-dot" class="service-dot"></span><span id="napcat-label" class="muted">待登录</span></div>
+      <p class="field-hint">关闭窗口后留在托盘；右键托盘可退出并停止机器人。</p>
+    </section>
+    <section class="card next-card"><span class="mini-spark">✦</span><div class="eyebrow">NEXT UP</div><h3 id="next-title">登录独立 QQ 小号</h3><p id="next-description">先准备你的机器人账号，日常主号保持独立。</p><div class="next-footer"><span id="step-count">0 / 3 步已完成</span><progress id="step-progress" value="0" max="3"></progress></div></section>
+    <section class="card toolbox"><div class="section-label">常用入口</div><a id="astrbot-link" href="#">AstrBot 管理面板<span>↗</span></a><button data-copy="dashboardPassword">复制 AstrBot 初始密码<span>⧉</span></button><a href="https://help.router-for.me/cn/" target="_blank" rel="noopener noreferrer">CPA 官方文档<span>↗</span></a><a href="https://learn.chatgpt.com/docs/pricing" target="_blank" rel="noopener noreferrer">ChatGPT 额度说明<span>↗</span></a><p class="field-hint">AstrBot 用户名：astrbot</p></section>
+  </aside></div>
+  <section id="logs" class="card logs-card"><details><summary><span>运行记录 <small>遇到问题时查看</small></span><span class="muted">展开 ↓</span></summary><div class="log-tabs" role="tablist" aria-label="运行记录类型"><button class="selected" data-log="cpa" role="tab" aria-selected="true">CPA</button><button data-log="astrbot" role="tab" aria-selected="false">AstrBot</button><button data-log="napcat" role="tab" aria-selected="false">QQ</button><button data-log="install" role="tab" aria-selected="false">安装</button><button id="refresh-logs" class="text-button">刷新 ↻</button></div><pre id="log-output">尚未读取运行记录。</pre></details></section>
+  <footer><span>群聊实验室 · 独立社区项目 <span class="footer-dot">·</span> 0.1.0</span><span id="last-update">正在连接本机工作台…</span></footer>
+</main></div><div id="toast" class="toast" role="status" hidden></div></body></html>
