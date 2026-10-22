@@ -1,0 +1,17 @@
+.build/
+dist/
+local-data/
+runtime/
+node_modules/
+*.user
+*.log
+state/
+auths/
+.venv/
+.cache/
+*.zip
+*.exe
+*.dll
+*.nupkg
+*.pyc
+__pycache__/
